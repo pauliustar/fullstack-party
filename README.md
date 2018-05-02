@@ -27,3 +27,9 @@ If you found this task it means we are looking for you!
 - Structure! WE LOVE STRUCTURE!
 - Maybe You have an idea how it should interact with users? Do it! Its on you!
 - Have fun!
+
+## Run the application
+
+- Make sure that PHP and Composer is installed.
+- Run `composer install`.
+- Run `php -S localhost:8080 -t public public/index.php`.

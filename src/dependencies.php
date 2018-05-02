@@ -12,6 +12,14 @@ $container['view'] = function ($container) {
     return $view;
 };
 
-$container['PagesController'] = function ($container) {
-    return new Src\Controllers\PagesController($container);
+$container['HomeController'] = function ($container) {
+    return new Src\Controllers\HomeController($container);
+};
+
+$container['AuthController'] = function ($container) {
+    return new Src\Controllers\AuthController($container);
+};
+
+$container['IssuesController'] = function ($container) {
+    return new Src\Controllers\IssuesController($container);
 };

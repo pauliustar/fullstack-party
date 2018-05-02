@@ -2,7 +2,7 @@
 
 namespace Src\Controllers;
 
-class PagesController extends Controller
+class HomeController extends Controller
 {
     public function index($request, $response)
     {
