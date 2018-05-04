@@ -4,22 +4,36 @@ namespace Src\Controllers;
 
 class AuthController extends IssuesController
 {
+
     public function index($request, $response, $args)
     {
-        $url = 'https://github.com/login/oauth/authorize';
         $params = http_build_query(
             array(
-            'client_id' => 'b3d340d026123644fc00',
-            'scope' => 'user',
+            'client_id' => CLIENT_ID,
+            'state' => $_SESSION['state'],
             )
         );
-
-        return $response->withRedirect($url . '?' . $params);
+        return $response->withRedirect(AUTH_URL . '?' . $params);
     }
 
     public function callback($request, $response, $args)
     {
-        $headers = $request->getHeaders();
-        var_dump($headers);
+        if (!isset($_SESSION['access_token'])) {
+            $code = $request->getParam('code');
+            $params = http_build_query(
+                array(
+                'client_id' => CLIENT_ID,
+                'client_secret' => CLIENT_SECRET,
+                'code' => $code,
+                'state' => $_SESSION['state'],
+                )
+            );
+            header('Accept', 'application/json');
+            $redirect = TOKEN_URL . '?' . $params;
+        } else {
+            $_SESSION['access_token'] = json_decode('access_token');
+            $redirect = $this->container->router->pathFor('issues');
+        }
+        return $response->withRedirect($redirect);
     }
 }

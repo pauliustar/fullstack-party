@@ -13,6 +13,8 @@ require __DIR__ . '/../vendor/autoload.php';
 
 session_start();
 
+$_SESSION['state'] = bin2hex(random_bytes(16));
+
 // Instantiate the app
 $settings = require __DIR__ . '/../src/settings.php';
 $app = new \Slim\App($settings);
@@ -25,6 +27,9 @@ require __DIR__ . '/../src/middleware.php';
 
 // Register routes
 require __DIR__ . '/../src/routes.php';
+
+// Github authentication
+require __DIR__ . '/../src/github.php';
 
 // Run app
 $app->run();
