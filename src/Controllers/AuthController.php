@@ -13,27 +13,36 @@ class AuthController extends IssuesController
             'state' => $_SESSION['state'],
             )
         );
-        return $response->withRedirect(AUTH_URL . '?' . $params);
+        return $response->withRedirect(AUTH_URL . $params);
     }
 
     public function callback($request, $response, $args)
     {
         if (!isset($_SESSION['access_token'])) {
             $code = $request->getParam('code');
-            $params = http_build_query(
-                array(
+            $state = $request->getParam('state');
+            $params = array(
                 'client_id' => CLIENT_ID,
                 'client_secret' => CLIENT_SECRET,
                 'code' => $code,
-                'state' => $_SESSION['state'],
+                'state' => $state,
+            );
+
+            $options = array(
+                'http' => array(
+                    'header'  => "Content-type: application/json\r\n".
+                    "Accept: application/json\r\n",
+                    'method'  => 'POST',
+                    'content' => json_encode($params)
                 )
             );
-            header('Accept', 'application/json');
-            $redirect = TOKEN_URL . '?' . $params;
+            $context  = stream_context_create($options);
+            $getToken = file_get_contents(TOKEN_URL, false, $context);
+            $_SESSION['access_token'] = json_decode($getToken)->access_token;
+            $response = $response->withRedirect($this->container->router->pathFor('issues'));
         } else {
-            $_SESSION['access_token'] = json_decode('access_token');
-            $redirect = $this->container->router->pathFor('issues');
+            $response = $response->withRedirect($this->container->router->pathFor('issues'));
         }
-        return $response->withRedirect($redirect);
+        return $response;
     }
 }
