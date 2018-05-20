@@ -2,7 +2,9 @@
 
 namespace Src\Controllers;
 
-class AuthController extends IssuesController
+use \Curl\Curl;
+
+class AuthController extends Controller
 {
 
     public function index($request, $response, $args)
@@ -43,6 +45,26 @@ class AuthController extends IssuesController
             $response = $response->withRedirect($this->container->router->pathFor('issues'));
         } else {
             $response = $response->withRedirect($this->container->router->pathFor('issues'));
+        }
+        return $response;
+    }
+    public function getUserInfo($request, $response, $args)
+    {
+        if (isset($_SESSION['access_token'])) {
+            $getUser = new Curl();
+            $getUser->setOpt(CURLOPT_SSL_VERIFYPEER, false);
+            $getUser->get('https://api.github.com/user', [
+              'access_token' => $_SESSION['access_token']
+            ]);
+            $githubResponse = $getUser->response;
+            $response = [
+              'username' => $githubResponse->login,
+              'repos' => $githubResponse->repos_url
+            ];
+            $getUser->close();
+            return $response;
+        } else {
+            $response = $response->withRedirect($this->container->router->pathFor('index'));
         }
         return $response;
     }
