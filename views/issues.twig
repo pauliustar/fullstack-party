@@ -2,12 +2,18 @@
   <button type="submit" name="logout">Logout</button>
 </form>
 
-<h1>Issues</h1>
+<h1>{{ openIssues }} Open {{ closedIssues }} Closed </h1>
 <table>
     {% for issue in issues %}
 
                 <tr>
                     <th> {{ issue.title }} </th>
+                </tr>
+                <tr>
+                    <td> Opened at {{ issue.created }} by {{ issue.user }} </td>
+                </tr>
+                <tr>
+                    <td> #{{ issue.id }} has {{ issue.comments }} comments </td>
                 </tr>
                 <tr>
                     <td> {{ issue.body }} </td>
