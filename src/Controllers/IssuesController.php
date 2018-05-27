@@ -3,7 +3,6 @@
 namespace Src\Controllers;
 
 use \Curl\Curl;
-use \Curl\MultiCurl;
 
 class IssuesController extends AuthController
 {
@@ -11,6 +10,7 @@ class IssuesController extends AuthController
     {
         $userInfo = $this->getUserInfo($request, $response, $args);
         $getRepos = new Curl();
+        $getRepos->setBasicAuthentication($userInfo['username'], $_SESSION['access_token']);
         $getRepos->setOpt(CURLOPT_SSL_VERIFYPEER, false);
         $getRepos->get($userInfo['repos']);
         if ($getRepos->error) {
@@ -28,39 +28,38 @@ class IssuesController extends AuthController
     public function showIssues($request, $response, $args)
     {
         if (isset($_SESSION['access_token'])) {
+            $userInfo = $this->getUserInfo($request, $response, $args);
             $allLinks = $this->getRepos($request, $response, $args);
-            $getIssues = new MultiCurl();
+            $getIssues = new Curl();
+            $getIssues->setBasicAuthentication($userInfo['username'], $_SESSION['access_token']);
             $getIssues->setOpt(CURLOPT_SSL_VERIFYPEER, false);
             foreach ($allLinks as $singleLink) {
-                 $getIssues->addGet($singleLink . '/issues', [
-                  'state' => 'all',
-                 ]);
-            }
-            $getIssues->success(function ($instance) {
-                foreach ($instance->response as $singleResponse) {
-                          $issue = [
-                            'url' => $singleResponse->url,
-                            'user' =>$singleResponse->user->login,
-                            'labels' => $singleResponse->labels_url,
-                            'comments' => $singleResponse->comments_url,
-                            'title' => $singleResponse->title,
-                            'body' => $singleResponse->body,
-                            'state' => $singleResponse->state
-                            ];
+                $getIssues->get($singleLink . '/issues', [
+                    'state' => 'all'
+                ]);
+                if ($getIssues->error) {
+                    echo 'Error Code: ' . $getIssues->errorCode . "<pre>";
+                    echo 'Error Message:' . $getIssues->errorMessage . "<pre>";
+                } else {
+                    $githubResponse = $getIssues->response;
+                    foreach ($githubResponse as $singleResponse) {
+                        $issues[] = [
+                          'url' => $singleResponse->url,
+                          'user' =>$singleResponse->user->login,
+                          'labels' => $singleResponse->labels_url,
+                          'comments' => $singleResponse->comments_url,
+                          'title' => $singleResponse->title,
+                          'body' => $singleResponse->body,
+                          'state' => $singleResponse->state
+                        ];
+                    }
                 }
-                echo "<pre>";
-                var_dump($issue);
-            });
-            $getIssues->error(function ($instance) {
-                echo 'Call To "' . $instance->url . '" was unsuccessful.' . "<pre>";
-                echo 'Error Code: ' . $instance->errorCode . "<pre>";
-                echo 'Error Message: ' . $instance->errorMessage . "<pre>";
-            });
-            $getIssues->start();
-            $getIssues->close();
+            }
+            return $this->container->view->render($response, 'issues.twig', $args = [
+              'issues' => $issues
+            ]);
         } else {
             return $this->container->view->render($response, 'index.twig', $args);
         }
-        return $this->container->view->render($response, 'issues.twig', $args);
     }
 }

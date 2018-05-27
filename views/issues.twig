@@ -1,3 +1,16 @@
 <form class="logout" action="{{ path_for('logout') }}" method="post">
   <button type="submit" name="logout">Logout</button>
 </form>
+
+<h1>Issues</h1>
+<table>
+    {% for issue in issues %}
+
+                <tr>
+                    <th> {{ issue.title }} </th>
+                </tr>
+                <tr>
+                    <td> {{ issue.body }} </td>
+                </tr>
+    {% endfor %}
+</table>
