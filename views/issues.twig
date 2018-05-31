@@ -3,20 +3,12 @@
 </form>
 
 <h1>{{ openIssues }} Open {{ closedIssues }} Closed </h1>
-<table>
-    {% for issue in issues %}
-
-                <tr>
-                    <th> {{ issue.title }} </th>
-                </tr>
-                <tr>
-                    <td> Opened at {{ issue.created }} by {{ issue.user }} </td>
-                </tr>
-                <tr>
-                    <td> #{{ issue.id }} has {{ issue.comments }} comments </td>
-                </tr>
-                <tr>
-                    <td> {{ issue.body }} </td>
-                </tr>
+{% for issue in issues %}
+    {{ issue.title }}
+    {% for label in issue.labels %}
+            <text style="background-color:{{label.labelColor}}"> {{ label.labelName }}</text>
     {% endfor %}
-</table>
+    Comments {{ issue.comments }}
+    </br>
+    #{{ issue.id }} opened {{ issue.created }} ago by {{ issue.user }} </br>
+{% endfor %}

@@ -40,22 +40,56 @@ class IssuesController extends AuthController
                     'state' => 'all'
                 ]);
                 if ($getIssues->error) {
-                    echo 'Error Code: ' . $getIssues->errorCode . "<pre>";
-                    echo 'Error Message:' . $getIssues->errorMessage . "<pre>";
+                    echo 'Error Code: ' . $getIssues->errorCode . '<pre>';
+                    echo 'Error Message:' . $getIssues->errorMessage . '<pre>';
                 } else {
                     $githubResponse = $getIssues->response;
                     foreach ($githubResponse as $singleResponse) {
                         if ($singleResponse->state != 'closed') {
-                            $issues[] = [
-                              'url' => $singleResponse->url,
-                              'id' => $singleResponse->id,
-                              'user' =>$singleResponse->user->login,
-                              'labels' => $singleResponse->labels,
-                              'comments' => $singleResponse->comments,
-                              'title' => $singleResponse->title,
-                              'body' => $singleResponse->body,
-                              'created' =>$singleResponse->created_at,
-                            ];
+                            $calcTime=strtotime($singleResponse->created_at);
+                            $calcTimeSec=ceil((time()-$calcTime));
+                            switch ($calcTimeSec) {
+                                case $calcTimeSec<60:
+                                    $created = round(($calcTimeSec/60))  . ' seconds';
+                                    break;
+                                case $calcTimeSec>60 && $calcTimeSec<3600:
+                                    $created = round(($calcTimeSec/60))  . ' minutes';
+                                    break;
+                                case $calcTimeSec>3600 && $calcTimeSec<86400:
+                                    $created = round(($calcTimeSec/60/60)) . ' hours';
+                                    break;
+                                default:
+                                    $created = round(($calcTimeSec/60/60/24))  . ' days';
+                                    break;
+                            }
+                            if (!empty($singleResponse->labels)) {
+                                foreach ($singleResponse->labels as $label) {
+                                    $labels[$singleResponse->id][$label->id] = [
+                                        'labelName' => ucfirst($label->name),
+                                        'labelColor' => $label->color
+                                    ];
+                                }
+                                $issues[$singleResponse->id] = [
+                                  'url' => $singleResponse->url,
+                                  'id' => $singleResponse->id,
+                                  'user' =>$singleResponse->user->login,
+                                  'comments' => $singleResponse->comments,
+                                  'title' => $singleResponse->title,
+                                  'body' => $singleResponse->body,
+                                  'created' => $created,
+                                  'labels' => $labels[$singleResponse->id]
+                                ];
+                            } else {
+                                $issues[$singleResponse->id] = [
+                                  'url' => $singleResponse->url,
+                                  'id' => $singleResponse->id,
+                                  'user' =>$singleResponse->user->login,
+                                  'comments' => $singleResponse->comments,
+                                  'title' => $singleResponse->title,
+                                  'body' => $singleResponse->body,
+                                  'created' => $created,
+                                ];
+                            }
                             $_SESSION['openIssues']++;
                         } else {
                             $_SESSION['closedIssues']++;
