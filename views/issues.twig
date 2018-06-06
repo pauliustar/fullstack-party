@@ -1,14 +1,19 @@
-<form class="logout" action="{{ path_for('logout') }}" method="post">
+<form class="logout" action="{{ path_for('logout') }}" method="POST">
   <button type="submit" name="logout">Logout</button>
 </form>
 
-<h1>{{ openIssues }} Open {{ closedIssues }} Closed </h1>
+<input type="button" disabled value="Open">
+<input type="button" value="Closed">
 {% for issue in issues %}
-    {{ issue.title }}
-    {% for label in issue.labels %}
-            <text style="background-color:{{label.labelColor}}"> {{ label.labelName }}</text>
-    {% endfor %}
-    Comments {{ issue.comments }}
-    </br>
-    #{{ issue.id }} opened {{ issue.created }} ago by {{ issue.user }} </br>
+    <form action="/issue/{{issue.id}}" id="open" method="POST">
+        <button type="submit" name="Submit">
+            {{ issue.title }}
+            {% for label in issue.labels %}
+                    <text style="background-color:{{label.labelColor}}"> {{ label.labelName }}</text>
+            {% endfor %}
+            Comments {{ issue.comments }}
+            </br>
+            #{{ issue.id }} opened {{ issue.created }} ago by {{ issue.user }} </br>
+        </button>
+  </form>
 {% endfor %}

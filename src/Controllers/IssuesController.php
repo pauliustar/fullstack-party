@@ -46,22 +46,6 @@ class IssuesController extends AuthController
                     $githubResponse = $getIssues->response;
                     foreach ($githubResponse as $singleResponse) {
                         if ($singleResponse->state != 'closed') {
-                            $calcTime=strtotime($singleResponse->created_at);
-                            $calcTimeSec=ceil((time()-$calcTime));
-                            switch ($calcTimeSec) {
-                                case $calcTimeSec<60:
-                                    $created = round(($calcTimeSec/60))  . ' seconds';
-                                    break;
-                                case $calcTimeSec>60 && $calcTimeSec<3600:
-                                    $created = round(($calcTimeSec/60))  . ' minutes';
-                                    break;
-                                case $calcTimeSec>3600 && $calcTimeSec<86400:
-                                    $created = round(($calcTimeSec/60/60)) . ' hours';
-                                    break;
-                                default:
-                                    $created = round(($calcTimeSec/60/60/24))  . ' days';
-                                    break;
-                            }
                             if (!empty($singleResponse->labels)) {
                                 foreach ($singleResponse->labels as $label) {
                                     $labels[$singleResponse->id][$label->id] = [
@@ -76,7 +60,8 @@ class IssuesController extends AuthController
                                   'comments' => $singleResponse->comments,
                                   'title' => $singleResponse->title,
                                   'body' => $singleResponse->body,
-                                  'created' => $created,
+                                  'created' => $this->convertTime($singleResponse->created_at),
+                                  'state' => $singleResponse->state,
                                   'labels' => $labels[$singleResponse->id]
                                 ];
                             } else {
@@ -87,7 +72,8 @@ class IssuesController extends AuthController
                                   'comments' => $singleResponse->comments,
                                   'title' => $singleResponse->title,
                                   'body' => $singleResponse->body,
-                                  'created' => $created,
+                                  'created' => $this->convertTime($singleResponse->created_at),
+                                  'state' => $singleResponse->state
                                 ];
                             }
                             $_SESSION['openIssues']++;
@@ -105,5 +91,28 @@ class IssuesController extends AuthController
         } else {
             return $this->container->view->render($response, 'index.twig', $args);
         }
+    }
+    public function convertTime($time)
+    {
+        $calcTime=strtotime($time);
+        $calcTimeSec=ceil((time()-$calcTime));
+        switch ($calcTimeSec) {
+            case $calcTimeSec<60:
+                return $created = round(($calcTimeSec/60))  . ' seconds';
+                break;
+            case $calcTimeSec>60 && $calcTimeSec<3600:
+                return $created = round(($calcTimeSec/60))  . ' minutes';
+                break;
+            case $calcTimeSec>3600 && $calcTimeSec<86400:
+                return $created = round(($calcTimeSec/60/60)) . ' hours';
+                break;
+            default:
+                return $created = round(($calcTimeSec/60/60/24))  . ' days';
+                break;
+        }
+    }
+    public function showIssue($request, $response, $args)
+    {
+        return $this->container->view->render($response, 'issue.twig', $args);
     }
 }

@@ -16,7 +16,7 @@ class AuthController extends Controller
             'scope' => 'user'
             ]
         );
-        return $response->withRedirect(AUTH_URL . $params);
+        return $response->withRedirect('https://github.com/login/oauth/authorize' . '?' . $params);
     }
 
     public function callback($request, $response, $args)
@@ -40,7 +40,7 @@ class AuthController extends Controller
                 ]
             ];
             $context  = stream_context_create($options);
-            $getToken = file_get_contents(TOKEN_URL, false, $context);
+            $getToken = file_get_contents('https://github.com/login/oauth/access_token?', false, $context);
             $_SESSION['access_token'] = json_decode($getToken)->access_token;
             $response = $response->withRedirect($this->container->router->pathFor('issues'));
         } else {
@@ -59,6 +59,7 @@ class AuthController extends Controller
             $githubResponse = $getUser->response;
             $response = [
               'username' => $githubResponse->login,
+              'avatar' => $githubResponse->avatar_url,
               'repos' => $githubResponse->repos_url
             ];
             $getUser->close();
