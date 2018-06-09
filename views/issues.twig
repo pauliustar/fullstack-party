@@ -1,19 +1,36 @@
 <form class="logout" action="{{ path_for('logout') }}" method="POST">
   <button type="submit" name="logout">Logout</button>
 </form>
-
-<input type="button" disabled value="Open">
-<input type="button" value="Closed">
-{% for issue in issues %}
-    <form action="/issue/{{issue.id}}" id="open" method="POST">
-        <button type="submit" name="Submit">
-            {{ issue.title }}
-            {% for label in issue.labels %}
-                    <text style="background-color:{{label.labelColor}}"> {{ label.labelName }}</text>
-            {% endfor %}
-            Comments {{ issue.comments }}
-            </br>
-            #{{ issue.id }} opened {{ issue.created }} ago by {{ issue.user }} </br>
-        </button>
-  </form>
-{% endfor %}
+<form class="issues" action="{{ path_for('issues') }}" method="GET">
+  <button name="type" type="submit" value="open">{{ openIssuesCount }} Open </button>
+  <button name="type" type="submit" value="closed"> {{ closedIssuesCount }} Closed </button>
+</form>
+{% if type == 'closed' %}
+    {% for issue in closedIssues %}
+        <form action="/issue/{{issue.id}}" method="POST">
+            <button type="submit" name="submit">
+                {{ issue.title }}
+                {% for label in issue.labels %}
+                        <text style="background-color:{{label.labelColor}}"> {{ label.labelName }}</text>
+                {% endfor %}
+                Comments {{ issue.comments }}
+                </br>
+                #{{ issue.id }} opened {{ issue.created }} ago by <a href="{{ issue.profile }}">{{ issue.user }}</a></br>
+            </button>
+      </form>
+    {% endfor %}
+{% else %}
+    {% for issue in openIssues %}
+        <form action="/issue/{{issue.id}}" id="open" method="POST">
+            <button type="submit" name="Submit">
+                {{ issue.title }}
+                {% for label in issue.labels %}
+                        <text style="background-color:{{label.labelColor}}"> {{ label.labelName }}</text>
+                {% endfor %}
+                Comments {{ issue.comments }}
+                </br>
+                #{{ issue.id }} opened {{ issue.created }} ago by <a href="{{ issue.profile }}">{{ issue.user }}</a></br>
+            </button>
+      </form>
+    {% endfor %}
+{% endif %}

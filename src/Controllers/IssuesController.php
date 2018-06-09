@@ -53,10 +53,11 @@ class IssuesController extends AuthController
                                         'labelColor' => $label->color
                                     ];
                                 }
-                                $issues[$singleResponse->id] = [
+                                $openIssues[$singleResponse->id] = [
                                   'url' => $singleResponse->url,
                                   'id' => $singleResponse->id,
                                   'user' =>$singleResponse->user->login,
+                                  'profile' =>$singleResponse->user->html_url,
                                   'comments' => $singleResponse->comments,
                                   'title' => $singleResponse->title,
                                   'body' => $singleResponse->body,
@@ -65,28 +66,63 @@ class IssuesController extends AuthController
                                   'labels' => $labels[$singleResponse->id]
                                 ];
                             } else {
-                                $issues[$singleResponse->id] = [
+                                $openIssues[$singleResponse->id] = [
                                   'url' => $singleResponse->url,
                                   'id' => $singleResponse->id,
                                   'user' =>$singleResponse->user->login,
+                                  'profile' =>$singleResponse->user->html_url,
                                   'comments' => $singleResponse->comments,
                                   'title' => $singleResponse->title,
                                   'body' => $singleResponse->body,
-                                  'created' => $this->convertTime($singleResponse->created_at),
+                                  'created' =>  $this->convertTime($singleResponse->created_at),
                                   'state' => $singleResponse->state
                                 ];
                             }
                             $_SESSION['openIssues']++;
                         } else {
+                            if (!empty($singleResponse->labels)) {
+                                foreach ($singleResponse->labels as $label) {
+                                    $labels[$singleResponse->id][$label->id] = [
+                                        'labelName' => ucfirst($label->name),
+                                        'labelColor' => $label->color
+                                    ];
+                                }
+                                $closedIssues[$singleResponse->id] = [
+                                  'url' => $singleResponse->url,
+                                  'id' => $singleResponse->id,
+                                  'user' =>$singleResponse->user->login,
+                                  'profile' =>$singleResponse->user->html_url,
+                                  'comments' => $singleResponse->comments,
+                                  'title' => $singleResponse->title,
+                                  'body' => $singleResponse->body,
+                                  'created' => $this->convertTime($singleResponse->created_at),
+                                  'state' => $singleResponse->state,
+                                  'labels' => $labels[$singleResponse->id]
+                                ];
+                            } else {
+                                $closedIssues[$singleResponse->id] = [
+                                  'url' => $singleResponse->url,
+                                  'id' => $singleResponse->id,
+                                  'user' =>$singleResponse->user->login,
+                                  'profile' =>$singleResponse->user->html_url,
+                                  'comments' => $singleResponse->comments,
+                                  'title' => $singleResponse->title,
+                                  'body' => $singleResponse->body,
+                                  'created' =>  $this->convertTime($singleResponse->created_at),
+                                  'state' => $singleResponse->state
+                                ];
+                            }
                             $_SESSION['closedIssues']++;
                         }
                     }
                 }
             }
             return $this->container->view->render($response, 'issues.twig', $args = [
-              'issues' => $issues,
-              'openIssues' => $_SESSION['openIssues'],
-              'closedIssues' => $_SESSION['closedIssues']
+              'type' => $request->getParam('type'),
+              'openIssues' => $openIssues,
+              'closedIssues' => $closedIssues,
+              'openIssuesCount' => $_SESSION['openIssues'],
+              'closedIssuesCount' => $_SESSION['closedIssues']
             ]);
         } else {
             return $this->container->view->render($response, 'index.twig', $args);
@@ -113,6 +149,9 @@ class IssuesController extends AuthController
     }
     public function showIssue($request, $response, $args)
     {
+        $route = $request->getAttribute('route');
+        $issueId = $route->getArgument('id');
+        
         return $this->container->view->render($response, 'issue.twig', $args);
     }
 }
