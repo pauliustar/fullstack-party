@@ -56,8 +56,9 @@ class IssuesController extends AuthController
                                 $openIssues[$singleResponse->id] = [
                                   'url' => $singleResponse->url,
                                   'id' => $singleResponse->id,
-                                  'user' =>$singleResponse->user->login,
-                                  'profile' =>$singleResponse->user->html_url,
+                                  'user' => $singleResponse->user->login,
+                                  'profile' => $singleResponse->user->html_url,
+                                  'avatar' => $singleResponse->user->avatar_url,
                                   'comments' => $singleResponse->comments,
                                   'title' => $singleResponse->title,
                                   'body' => $singleResponse->body,
@@ -71,6 +72,7 @@ class IssuesController extends AuthController
                                   'id' => $singleResponse->id,
                                   'user' =>$singleResponse->user->login,
                                   'profile' =>$singleResponse->user->html_url,
+                                  'avatar' => $singleResponse->user->avatar_url,
                                   'comments' => $singleResponse->comments,
                                   'title' => $singleResponse->title,
                                   'body' => $singleResponse->body,
@@ -92,6 +94,7 @@ class IssuesController extends AuthController
                                   'id' => $singleResponse->id,
                                   'user' =>$singleResponse->user->login,
                                   'profile' =>$singleResponse->user->html_url,
+                                  'avatar' => $singleResponse->user->avatar_url,
                                   'comments' => $singleResponse->comments,
                                   'title' => $singleResponse->title,
                                   'body' => $singleResponse->body,
@@ -105,6 +108,7 @@ class IssuesController extends AuthController
                                   'id' => $singleResponse->id,
                                   'user' =>$singleResponse->user->login,
                                   'profile' =>$singleResponse->user->html_url,
+                                  'avatar' => $singleResponse->user->avatar_url,
                                   'comments' => $singleResponse->comments,
                                   'title' => $singleResponse->title,
                                   'body' => $singleResponse->body,
@@ -149,9 +153,20 @@ class IssuesController extends AuthController
     }
     public function showIssue($request, $response, $args)
     {
-        $route = $request->getAttribute('route');
-        $issueId = $route->getArgument('id');
-        
-        return $this->container->view->render($response, 'issue.twig', $args);
+        $issue = [
+            'title' => $request->getParam('title'),
+            'id' => $request->getParam('id'),
+            'state' => ucfirst($request->getParam('state')),
+            'user' => $request->getParam('user'),
+            'profile' => $request->getParam('profile'),
+            'created' => $request->getParam('created'),
+            'avatar' => $request->getParam('avatar'),
+            'comments' => $request->getParam('comments'),
+            'body' => $request->getParam('body')
+
+        ];
+        return $this->container->view->render($response, 'issue.twig', $args = [
+            'issue' => $issue
+        ]);
     }
 }

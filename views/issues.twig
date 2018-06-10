@@ -29,8 +29,19 @@
                 {% endfor %}
                 Comments {{ issue.comments }}
                 </br>
-                #{{ issue.id }} opened {{ issue.created }} ago by <a href="{{ issue.profile }}">{{ issue.user }}</a></br>
+                #{{ issue.id }} opened {{ issue.created }} ago by <a href="{{ issue.profile }}" style="text-decoration: none; color: #ADFF2F">{{ issue.user }}</a></br>
+
             </button>
+            <input type="hidden" value="{{ issue.title }}" name="title" />
+            <input type="hidden" value="{{ issue.id }}" name="id" />
+            <input type="hidden" value="{{ issue.state }}" name="state" />
+            <input type="hidden" value="{{ issue.user }}" name="user" />
+            <input type="hidden" value="{{ issue.profile }}" name="profile" />
+            <input type="hidden" value="{{ issue.created }}" name="created" />
+            <input type="hidden" value="{{ issue.avatar }}" name="avatar" />
+            <input type="hidden" value="{{ issue.comments }}" name="comments" />
+            <input type="hidden" value="{{ issue.body }}" name="body" />
+
       </form>
     {% endfor %}
 {% endif %}

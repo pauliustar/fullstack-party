@@ -1,3 +1,8 @@
 <form class="back" action="{{ path_for('issues') }}" method="GET">
   <button type="submit">Back to Issues</button>
 </form>
+
+<b>{{ issue.title }}</b> #{{ issue.id }} </br>
+{{ issue.state }}  <a href="{{ issue.profile }}" style="text-decoration: none; color: #ADFF2F"> {{ issue.user}} </a> opened this issue {{ issue.created }} ago {{ issue.comments }} Comments </br>
+<img src="{{ issue.avatar }}" width="48" height="48"> <a href="{{ issue.profile }}" style="text-decoration: none; color: #ADFF2F"> {{ issue.user}} </a> commented {{ issue.created }} ago</br>
+{{ issue.body }} </br>
