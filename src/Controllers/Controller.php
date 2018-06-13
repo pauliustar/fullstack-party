@@ -11,5 +11,6 @@ abstract class Controller
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
+        $this->github = $container->get('settings')['configGithub'];
     }
 }

@@ -28,6 +28,7 @@ class IssuesController extends AuthController
     public function showIssues($request, $response, $args)
     {
         if (isset($_SESSION['access_token'])) {
+            var_dump($this->github);
             $_SESSION['openIssues'] = 0;
             $_SESSION['closedIssues'] = 0;
             $userInfo = $this->getUserInfo($request, $response, $args);
@@ -153,6 +154,7 @@ class IssuesController extends AuthController
     }
     public function showIssue($request, $response, $args)
     {
+        var_dump($this->github);
         $issue = [
             'title' => $request->getParam('title'),
             'id' => $request->getParam('id'),
