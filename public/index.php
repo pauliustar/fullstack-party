@@ -16,7 +16,7 @@ session_start();
 $_SESSION['state'] = bin2hex(random_bytes(16));
 
 // Instantiate the app
-$settings = require __DIR__ . '/../src/settings.php';
+$settings = require __DIR__ . '/../config/settings.php';
 $app = new \Slim\App($settings);
 
 // Set up dependencies

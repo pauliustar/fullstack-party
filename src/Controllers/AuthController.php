@@ -11,7 +11,7 @@ class AuthController extends Controller
     {
         $params = http_build_query(
             [
-            'client_id' => CLIENT_ID,
+            'client_id' => $this->github['github']['api']['client'],
             'state' => $_SESSION['state'],
             'scope' => 'user'
             ]
@@ -25,8 +25,8 @@ class AuthController extends Controller
             $code = $request->getParam('code');
             $state = $request->getParam('state');
             $params = [
-                'client_id' => CLIENT_ID,
-                'client_secret' => CLIENT_SECRET,
+                'client_id' => $this->github['github']['api']['client'],
+                'client_secret' => $this->github['github']['api']['secret'],
                 'code' => $code,
                 'state' => $state,
             ];
