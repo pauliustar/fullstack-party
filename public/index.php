@@ -25,8 +25,5 @@ require __DIR__ . '/../src/dependencies.php';
 // Register routes
 require __DIR__ . '/../src/routes.php';
 
-// Github authentication
-require __DIR__ . '/../src/github.php';
-
 // Run app
 $app->run();
