@@ -59,7 +59,8 @@ class IssuesController extends AuthController
                                   'user' => $singleResponse->user->login,
                                   'profile' => $singleResponse->user->html_url,
                                   'avatar' => $singleResponse->user->avatar_url,
-                                  'comments' => $singleResponse->comments,
+                                  'comments' => $singleResponse->comments + 1,
+                                  'commentsUrl' => $singleResponse->comments_url,
                                   'title' => $singleResponse->title,
                                   'body' => $singleResponse->body,
                                   'created' => $this->convertTime($singleResponse->created_at),
@@ -73,7 +74,8 @@ class IssuesController extends AuthController
                                   'user' =>$singleResponse->user->login,
                                   'profile' =>$singleResponse->user->html_url,
                                   'avatar' => $singleResponse->user->avatar_url,
-                                  'comments' => $singleResponse->comments,
+                                  'comments' => $singleResponse->comments + 1,
+                                  'commentsUrl' => $singleResponse->comments_url,
                                   'title' => $singleResponse->title,
                                   'body' => $singleResponse->body,
                                   'created' =>  $this->convertTime($singleResponse->created_at),
@@ -95,7 +97,8 @@ class IssuesController extends AuthController
                                   'user' =>$singleResponse->user->login,
                                   'profile' =>$singleResponse->user->html_url,
                                   'avatar' => $singleResponse->user->avatar_url,
-                                  'comments' => $singleResponse->comments,
+                                  'comments' => $singleResponse->comments + 1,
+                                  'commentsUrl' => $singleResponse->comments_url,
                                   'title' => $singleResponse->title,
                                   'body' => $singleResponse->body,
                                   'created' => $this->convertTime($singleResponse->created_at),
@@ -109,7 +112,8 @@ class IssuesController extends AuthController
                                   'user' =>$singleResponse->user->login,
                                   'profile' =>$singleResponse->user->html_url,
                                   'avatar' => $singleResponse->user->avatar_url,
-                                  'comments' => $singleResponse->comments,
+                                  'comments' => $singleResponse->comments + 1,
+                                  'commentsUrl' => $singleResponse->comments_url,
                                   'title' => $singleResponse->title,
                                   'body' => $singleResponse->body,
                                   'created' =>  $this->convertTime($singleResponse->created_at),
@@ -121,6 +125,7 @@ class IssuesController extends AuthController
                     }
                 }
             }
+            $getIssues->close();
             return $this->container->view->render($response, 'issues.twig', $args = [
               'type' => $request->getParam('type'),
               'openIssues' => $openIssues,
@@ -138,16 +143,36 @@ class IssuesController extends AuthController
         $calcTimeSec=ceil((time()-$calcTime));
         switch ($calcTimeSec) {
             case $calcTimeSec<60:
-                return $created = round(($calcTimeSec/60))  . ' seconds';
+                if (round(($calcTimeSec/60)) <= 1) {
+                    $created = round(($calcTimeSec/60))  . ' second';
+                } else {
+                    $created = round(($calcTimeSec/60))  . ' seconds';
+                }
+                return $created;
                 break;
             case $calcTimeSec>60 && $calcTimeSec<3600:
-                return $created = round(($calcTimeSec/60))  . ' minutes';
+                if (round(($calcTimeSec/60)) <= 1) {
+                    $created = round(($calcTimeSec/60))  . ' minute';
+                } else {
+                    $created = round(($calcTimeSec/60))  . ' minutes';
+                }
+                return $created;
                 break;
             case $calcTimeSec>3600 && $calcTimeSec<86400:
-                return $created = round(($calcTimeSec/60/60)) . ' hours';
+                if (round(($calcTimeSec/60/60)) <= 1) {
+                    $created = round(($calcTimeSec/60/60))  . ' hour';
+                } else {
+                    $created = round(($calcTimeSec/60/60))  . ' hours';
+                }
+                return $created;
                 break;
             default:
-                return $created = round(($calcTimeSec/60/60/24))  . ' days';
+                if (round(($calcTimeSec/60/60/24)) <= 1) {
+                    $created = round(($calcTimeSec/60/60/24))  . ' day';
+                } else {
+                    $created = round(($calcTimeSec/60/60/24))  . ' days';
+                }
+                return $created;
                 break;
         }
     }
@@ -165,8 +190,31 @@ class IssuesController extends AuthController
             'body' => $request->getParam('body')
 
         ];
-        return $this->container->view->render($response, 'issue.twig', $args = [
-            'issue' => $issue
-        ]);
+
+        $userInfo = $this->getUserInfo($request, $response, $args);
+        $getComments = new Curl();
+        $getComments->setBasicAuthentication($userInfo['username'], $_SESSION['access_token']);
+        $getComments->setOpt(CURLOPT_SSL_VERIFYPEER, false);
+        $getComments->get($request->getParam('commentsUrl'));
+        if ($getComments->error) {
+            echo 'Error Code: ' . $getComments->errorCode . "<pre>";
+            echo 'Error Message:' . $getComments->errorMessage . "<pre>";
+        } else {
+            $githubResponse = $getComments->response;
+            foreach ($githubResponse as $singleResponse) {
+                $comments[$singleResponse->id] = [
+                    'avatar' => $singleResponse->user->avatar_url,
+                    'user' => $singleResponse->user->login,
+                    'profile' => $singleResponse->user->html_url,
+                    'created' => $this->convertTime($singleResponse->created_at),
+                    'body' => $singleResponse->body
+                ];
+            }
+            return $this->container->view->render($response, 'issue.twig', $args = [
+                'issue' => $issue,
+                'comments' => $comments
+            ]);
+        }
+        $getComments->close();
     }
 }

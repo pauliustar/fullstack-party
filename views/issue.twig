@@ -3,6 +3,11 @@
 </form>
 
 <b>{{ issue.title }}</b> #{{ issue.id }} </br>
-{{ issue.state }}  <a href="{{ issue.profile }}" style="text-decoration: none; color: #ADFF2F"> {{ issue.user}} </a> opened this issue {{ issue.created }} ago {{ issue.comments }} Comments </br>
+{{ issue.state }}  <a href="{{ issue.profile }}" style="text-decoration: none; color: #ADFF2F"> {{ issue.user}} </a> opened this issue {{ issue.created }} ago {% if issue.comments == '1' %} {{ issue.comments }} Comment {% else %} {{ issue.comments }} Comments {% endif %}</br>
 <img src="{{ issue.avatar }}" width="48" height="48"> <a href="{{ issue.profile }}" style="text-decoration: none; color: #ADFF2F"> {{ issue.user}} </a> commented {{ issue.created }} ago</br>
 {{ issue.body }} </br>
+
+{% for comment in comments %}
+<img src="{{ comment.avatar }}" width="48" height="48"> <a href="{{ comment.profile }}" style="text-decoration: none; color: #ADFF2F"> {{ comment.user}} </a> commented {{ comment.created }} ago</br>
+{{ comment.body }} </br>
+{% endfor %}
